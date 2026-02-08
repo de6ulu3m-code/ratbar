@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
     <title>Бар "Хвостатый Глоток" 🍻</title>
     <style>
         :root {
@@ -15,7 +16,7 @@
         body {
             background-color: var(--dark-bg);
             color: #f3e5ab;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'Noto Color Emoji', 'Segoe UI', serif;
             display: flex; flex-direction: column; align-items: center;
             margin: 0; min-height: 100vh; padding-bottom: 50px;
             -webkit-user-select: none; user-select: none;
@@ -120,31 +121,38 @@
 
     // --- ЛОГИКА ВЫШИБАЛЫ ---
     function checkBouncer() {
-        const screen = document.getElementById('bouncer-screen');
-        const text = document.getElementById('bouncer-text');
-        const subtext = document.getElementById('bouncer-subtext');
-        const action = document.getElementById('bouncer-action');
-        const wasKicked = sessionStorage.getItem('kickedOut');
+    const screen = document.getElementById('bouncer-screen');
+    const text = document.getElementById('bouncer-text');
+    const subtext = document.getElementById('bouncer-subtext');
+    const action = document.getElementById('bouncer-action');
+    
+    // ПРИНУДИТЕЛЬНО обновляем переменную cheese из памяти перед проверкой
+    cheese = parseInt(localStorage.getItem('ratCheese')) || 0;
+    
+    const wasKicked = sessionStorage.getItem('kickedOut');
 
-        if (wasKicked) {
-            text.innerText = "ПОШЕЛ ВОН!";
-            text.style.color = "#ff4444";
-            subtext.innerHTML = "<b style='color:white;'>Тебя выгнали из бара, потому что у тебя слишком мало сыра!</b><br>Минимум для входа: 50 🧀";
-            action.innerHTML = `<button class="btn" onclick="location.href='https://de6ulu3m-code.github.io/ratpage/'">Вернуться в дворик</button>`;
-            return;
-        }
+    // Если есть флаг изгнания, но сыра уже много — даем шанс войти
+    if (wasKicked && cheese < 50) {
+        text.innerText = "ПОШЕЛ ВОН!";
+        text.style.color = "#ff4444";
+        subtext.innerHTML = `<b style='color:white;'>Тебя выгнали, потому что у тебя мало сыра (${cheese})!</b><br>Накопи 50 🧀 в городе.`;
+        action.innerHTML = `<button class="btn" onclick="location.href='https://de6ulu3m-code.github.io/ratpage/'">Вернуться в дворик</button>`;
+        return;
+    }
 
-        if (cheese >= 50) {
-            text.innerText = cheese >= 500 ? "ДОБРО ПОЖАЛОВАТЬ, БОСС!" : "Хм... Проходи.";
-            text.style.color = "var(--gold)";
-            subtext.innerText = "Показывай свои запасы.";
-            action.innerHTML = `<button class="btn" onclick="letIn()" style="padding: 15px 40px;">ВОЙТИ В БАР</button>`;
-        } else {
-            text.innerText = "ВХОД ВОСПРЕЩЕН!";
-            text.style.color = "red";
-            subtext.innerHTML = `У тебя всего ${cheese} 🧀.<br>Вход только для солидных крыс (от 50 🧀).`;
-            action.innerHTML = `<button class="btn" onclick="location.href='https://de6ulu3m-code.github.io/ratpage/'">УЙТИ</button>`;
-        }
+    // Если сыра достаточно — убираем любые блокировки
+    if (cheese >= 50) {
+        sessionStorage.removeItem('kickedOut'); // На всякий случай чистим флаг изгнания
+        text.innerText = cheese >= 500 ? "ДОБРО ПОЖАЛОВАТЬ, БОСС!" : "Хм... Проходи.";
+        text.style.color = "var(--gold)";
+        subtext.innerText = `У тебя ${cheese} 🧀. Вид солидный.`;
+        action.innerHTML = `<button class="btn" onclick="letIn()" style="padding: 15px 40px;">ВОЙТИ В БАР</button>`;
+    } else {
+        text.innerText = "ВХОД ВОСПРЕЩЕН!";
+        text.style.color = "red";
+        subtext.innerHTML = `У тебя всего ${cheese} 🧀.<br>Вход только для солидных крыс (от 50 🧀).`;
+        action.innerHTML = `<button class="btn" onclick="location.href='https://de6ulu3m-code.github.io/ratpage/'">УЙТИ</button>`;
+    }
     }
 
     function letIn() {
