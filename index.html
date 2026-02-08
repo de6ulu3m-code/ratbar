@@ -59,7 +59,7 @@
             cursor: pointer;
             position: absolute;
             /* Время анимации должно быть равно или чуть меньше скорости перемешивания */
-            transition: all 0.15s linear; 
+            transition: all 0.25s linear; 
             user-select: none;
             bottom: 10px;
             filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
@@ -188,7 +188,7 @@
             isShuffling = false;
             document.getElementById('msg').innerText = "ГДЕ СЫР? (Если успел заметить!)";
         }
-    }, 150); // Твоя скорость 75мс
+    }, 250); // Твоя скорость 75мс
 }
 
     function playerGuess(cupId) {
