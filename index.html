@@ -58,12 +58,12 @@
             font-size: 65px;
             cursor: pointer;
             position: absolute;
-            transition: all 0.4s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            /* Время анимации должно быть равно или чуть меньше скорости перемешивания */
+            transition: all 0.075s linear; 
             user-select: none;
             bottom: 10px;
             filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
         }
-
         /* Позиции стаканов */
         .pos-0 { left: 10px; }
         .pos-1 { left: 135px; }
@@ -170,26 +170,26 @@
     }
 
     function startShuffling() {
-        let count = 0;
-        const maxShuffles = 20; // Сколько раз поменяются местами
+    let count = 0;
+    const maxShuffles = 20; // Увеличим количество перемешиваний, раз они такие быстрые
+    
+    const shuffleInterval = setInterval(() => {
+        // Перемешиваем позиции
+        currentPositions.sort(() => Math.random() - 0.5);
         
-        const shuffleInterval = setInterval(() => {
-            // Перемешиваем позиции
-            currentPositions.sort(() => Math.random() - 0.5);
-            
-            for (let i = 0; i < 3; i++) {
-                const cup = document.getElementById(`cup-${i}`);
-                cup.className = `cup pos-${currentPositions[i]}`;
-            }
-            
-            count++;
-            if (count >= maxShuffles) {
-                clearInterval(shuffleInterval);
-                isShuffling = false;
-                document.getElementById('msg').innerText = "ГДЕ СЫР?";
-            }
-        }, 75); // Скорость кружения
-    }
+        for (let i = 0; i < 3; i++) {
+            const cup = document.getElementById(`cup-${i}`);
+            cup.className = `cup pos-${currentPositions[i]}`;
+        }
+        
+        count++;
+        if (count >= maxShuffles) {
+            clearInterval(shuffleInterval);
+            isShuffling = false;
+            document.getElementById('msg').innerText = "ГДЕ СЫР? (Если успел заметить!)";
+        }
+    }, 75); // Твоя скорость 75мс
+}
 
     function playerGuess(cupId) {
         if (isShuffling || hasPlayed) return;
