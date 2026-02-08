@@ -171,7 +171,7 @@
 
     function startShuffling() {
         let count = 0;
-        const maxShuffles = 10; // Сколько раз поменяются местами
+        const maxShuffles = 20; // Сколько раз поменяются местами
         
         const shuffleInterval = setInterval(() => {
             // Перемешиваем позиции
@@ -188,7 +188,7 @@
                 isShuffling = false;
                 document.getElementById('msg').innerText = "ГДЕ СЫР?";
             }
-        }, 150); // Скорость кружения
+        }, 75); // Скорость кружения
     }
 
     function playerGuess(cupId) {
