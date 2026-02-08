@@ -4,55 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
-    <title>Бар "Хвостатый Глоток" 🍺</title>
+    <title>Бар "Хвостатый Глоток" 🍻</title>
     <style>
+        :root {
+            --gold: #ffcc00;
+            --wood: #3e2723;
+            --dark-wood: #1a0f0a;
+        }
+
         body {
-            background-color: #1a0f0a; /* Темный древесный цвет */
+            background-color: var(--dark-wood);
             color: #f3e5ab;
             font-family: 'Noto Color Emoji', 'Segoe UI', serif;
             display: flex; flex-direction: column; align-items: center;
-            margin: 0; min-height: 100vh;
+            margin: 0; min-height: 100vh; overflow-x: hidden;
         }
 
+        /* Шапка бара */
         .bar-header {
             background: #2d1b0d; width: 100%; text-align: center;
             padding: 20px; border-bottom: 4px solid #5d4037;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.8);
         }
 
-        .stats { color: #ffcc00; font-weight: bold; margin-top: 5px; }
+        .stats { color: var(--gold); font-weight: bold; font-size: 1.3rem; margin-top: 10px; }
 
-        .bar-scene {
-            position: relative; width: 90%; max-width: 500px;
-            height: 300px; margin-top: 20px;
-            background: #3e2723; border-radius: 20px;
-            border: 8px solid #2d1b0d; display: flex;
-            justify-content: space-around; align-items: flex-end;
-            padding-bottom: 20px;
+        /* Игровая зона */
+        .game-container {
+            margin-top: 40px;
+            background: #2d1b0d;
+            padding: 30px;
+            border-radius: 30px;
+            border: 3px solid #5d4037;
+            text-align: center;
+            width: 350px;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* Столы с гостями */
-        .table { font-size: 50px; cursor: pointer; transition: 0.3s; }
-        .table:hover { transform: scale(1.1); filter: brightness(1.2); }
-
-        /* Стили игры в наперстки */
-        .game-zone {
-            display: none; background: rgba(0,0,0,0.8);
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            flex-direction: column; align-items: center; justify-content: center;
-            z-index: 100;
+        #msg { 
+            height: 50px; margin-bottom: 20px; 
+            font-style: italic; color: var(--gold);
+            font-size: 1.1rem;
         }
 
-        .cup-container { display: flex; gap: 20px; margin: 30px 0; }
-        .cup { 
-            font-size: 60px; cursor: pointer; transition: 0.5s ease-in-out;
+        .cup-stage {
+            height: 150px;
             position: relative;
+            margin-bottom: 20px;
+            /* Чтобы стаканы не вылетали за пределы */
         }
-        
+
+        .cup {
+            font-size: 65px;
+            cursor: pointer;
+            position: absolute;
+            transition: all 0.4s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+            user-select: none;
+            bottom: 10px;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
+        }
+
+        /* Позиции стаканов */
+        .pos-0 { left: 10px; }
+        .pos-1 { left: 135px; }
+        .pos-2 { left: 260px; }
+
+        /* Анимация подъема */
+        .lifted { transform: translateY(-60px); }
+
         .btn {
-            background: #5d4037; color: white; border: 2px solid #ffcc00;
-            padding: 10px 20px; border-radius: 10px; cursor: pointer;
-            text-decoration: none; margin: 5px;
+            background: #5d4037; color: white; border: 2px solid var(--gold);
+            padding: 15px 30px; border-radius: 12px; cursor: pointer;
+            font-weight: bold; font-size: 1rem; transition: 0.2s;
+        }
+        .btn:hover { background: var(--gold); color: black; }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .back-link {
+            margin-top: auto; padding: 30px;
+            color: var(--gold); text-decoration: none; font-weight: bold;
         }
     </style>
 </head>
@@ -60,97 +90,123 @@
 
 <div class="bar-header">
     <h1>🍻 Бар "Хвостатый Глоток"</h1>
-    <div class="stats">В кошельке: <span id="balance">0</span> 🧀</div>
+    <div class="stats">Твой сыр: <span id="balance">0</span> 🧀</div>
 </div>
 
-<div class="bar-scene">
-    <div class="table" onclick="talk('Бармен', 'Эй, пушистый! Хочешь сыграть в стаканчики? Один кон — 5 сырков.')">🐹🍸</div>
-    <div class="table" onclick="talk('Старая крыса', 'Раньше сыр был желтее, а коты — медленнее...')">👵🐁</div>
-    <div class="table" onclick="openGame()">🕵️‍♂️🎲</div> </div>
-
-<p id="dialog" style="margin-top: 20px; background: #2d1b0d; padding: 10px; border-radius: 10px; min-height: 20px; width: 80%; text-align: center;">
-    Нажми на посетителей, чтобы поболтать.
-</p>
-
-<div id="game-overlay" class="game-zone">
-    <h2>Где спрятан сыр? 🧀</h2>
-    <p>Ставка: 5 сырков</p>
-    <div class="cup-container">
-        <div id="cup0" class="cup" onclick="checkCup(0)">🍯</div>
-        <div id="cup1" class="cup" onclick="checkCup(1)">🍯</div>
-        <div id="cup2" class="cup" onclick="checkCup(2)">🍯</div>
+<div class="game-container">
+    <div id="msg">Эй, крыса! Хочешь подзаработать сыра?</div>
+    
+    <div class="cup-stage" id="stage">
+        <div id="cup-0" class="cup pos-0" onclick="playerGuess(0)">🍯</div>
+        <div id="cup-1" class="cup pos-1" onclick="playerGuess(1)">🍯</div>
+        <div id="cup-2" class="cup pos-2" onclick="playerGuess(2)">🍯</div>
     </div>
-    <button class="btn" onclick="closeGame()">Уйти из-за стола</button>
+
+    <button id="start-btn" class="btn" onclick="startGame()">ИГРАТЬ (5 🧀)</button>
 </div>
 
-<div style="margin-top: 30px;">
-    <a href="https://de6ulu3m-code.github.io/rattown/" class="btn">Вернуться в город</a>
+<div id="dialog-area" style="margin-top: 20px; max-width: 300px; text-align: center; color: #8d6e63;">
+    <p><i>В углу играет старый патефон, пахнет пылью и дорогим швейцарским сыром...</i></p>
 </div>
+
+<a href="https://de6ulu3m-code.github.io/rattown/" class="back-link">← Уйти из бара</a>
 
 <script>
+    // Загрузка данных
     let cheese = parseInt(localStorage.getItem('ratCheese')) || 0;
     let winningCup = 0;
-    let canPlay = true;
+    let currentPositions = [0, 1, 2]; 
+    let isShuffling = false;
+    let hasPlayed = false;
 
-    function updateDisplay() {
+    function updateUI() {
         document.getElementById('balance').innerText = cheese;
         localStorage.setItem('ratCheese', cheese);
     }
 
-    function talk(name, text) {
-        document.getElementById('dialog').innerHTML = `<b>${name}:</b> "${text}"`;
-    }
-
-    function openGame() {
+    function startGame() {
         if (cheese < 5) {
-            alert("Маловато сыра для игры! Нужно хотя бы 5 🧀.");
+            document.getElementById('msg').innerText = "Бармен: У тебя нет денег даже на корочку!";
             return;
         }
-        document.getElementById('game-overlay').style.display = 'flex';
-        resetCups();
-    }
+        if (isShuffling) return;
 
-    function resetCups() {
+        // Ставка
+        cheese -= 5;
+        updateUI();
+        
+        isShuffling = true;
+        hasPlayed = false;
+        document.getElementById('start-btn').disabled = true;
+
+        // 1. Показываем сыр
         winningCup = Math.floor(Math.random() * 3);
-        canPlay = true;
-        for(let i=0; i<3; i++) {
-            document.getElementById('cup'+i).innerText = '🍯';
-            document.getElementById('cup'+i).style.transform = 'translateY(0)';
-        }
+        const winner = document.getElementById(`cup-${winningCup}`);
+        
+        document.getElementById('msg').innerText = "Смотри внимательно...";
+        winner.innerHTML = '🍯<br><span style="font-size:30px">🧀</span>';
+        winner.classList.add('lifted');
+
+        // 2. Прячем и крутим
+        setTimeout(() => {
+            winner.classList.remove('lifted');
+            setTimeout(() => {
+                winner.innerHTML = '🍯';
+                startShuffling();
+            }, 400);
+        }, 1000);
     }
 
-    function checkCup(index) {
-        if (!canPlay) return;
-        canPlay = false;
+    function startShuffling() {
+        let count = 0;
+        const maxShuffles = 10; // Сколько раз поменяются местами
+        
+        const shuffleInterval = setInterval(() => {
+            // Перемешиваем позиции
+            currentPositions.sort(() => Math.random() - 0.5);
+            
+            for (let i = 0; i < 3; i++) {
+                const cup = document.getElementById(`cup-${i}`);
+                cup.className = `cup pos-${currentPositions[i]}`;
+            }
+            
+            count++;
+            if (count >= maxShuffles) {
+                clearInterval(shuffleInterval);
+                isShuffling = false;
+                document.getElementById('msg').innerText = "ГДЕ СЫР?";
+            }
+        }, 450); // Скорость кружения
+    }
 
-        cheese -= 5; // Снимаем ставку
-        
-        const cups = [document.getElementById('cup0'), document.getElementById('cup1'), document.getElementById('cup2')];
-        
-        // Поднимаем стаканы
-        for(let i=0; i<3; i++) {
-            cups[i].style.transform = 'translateY(-40px)';
+    function playerGuess(cupId) {
+        if (isShuffling || hasPlayed) return;
+
+        hasPlayed = true;
+        document.getElementById('start-btn').disabled = false;
+        document.getElementById('start-btn').innerText = "ЕЩЁ РАЗ?";
+
+        // Вскрываем все карты
+        for (let i = 0; i < 3; i++) {
+            const cup = document.getElementById(`cup-${i}`);
+            cup.classList.add('lifted');
             if (i === winningCup) {
-                cups[i].innerHTML = '🍯<br><span style="font-size:30px">🧀</span>';
+                cup.innerHTML = '🍯<br><span style="font-size:30px">🧀</span>';
             }
         }
 
-        if (index === winningCup) {
-            cheese += 15; // Выигрыш
-            alert("Угадал! +10 сырков прибыли!");
+        if (cupId === winningCup) {
+            cheese += 15;
+            document.getElementById('msg').innerText = "ЧЕРТ! Твоя взяла. Забирай сыр.";
         } else {
-            alert("Мимо! Попробуй еще раз.");
+            document.getElementById('msg').innerText = "ХА! Сыр остается в баре.";
         }
-
-        updateDisplay();
-        setTimeout(resetCups, 2000);
+        updateUI();
     }
 
-    function closeGame() {
-        document.getElementById('game-overlay').style.display = 'none';
-    }
-
-    updateDisplay();
+    // Инициализация баланса
+    updateUI();
 </script>
+
 </body>
-  </html>
+</html>
